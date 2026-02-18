@@ -1,143 +1,118 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拉里來</title>
+    <title>Lunar New Year | Year of the Horse</title>
     <style>
+        :root {
+            --chinese-red: #D32F2F;
+            --gold: #FFD700;
+            --dark-red: #8B0000;
+            --white: #FFF5E1;
+        }
+
         body {
             margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(to bottom, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            overflow: hidden;
-            font-family: 'Microsoft JhengHei', sans-serif;
-        }
-
-        /* 飄浮愛心特效 */
-        .heart {
-            position: absolute;
-            color: rgba(255, 255, 255, 0.6);
-            user-select: none;
-            pointer-events: none;
-            animation: float 5s linear infinite;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(100vh) scale(0); opacity: 0; }
-            50% { opacity: 0.8; }
-            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-        }
-
-        /* 賀卡容器 */
-        .card-container {
-            position: relative;
-            z-index: 10;
-            cursor: pointer;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--white);
+            color: #333;
             text-align: center;
         }
 
-        .envelope {
-            width: 300px;
-            height: 200px;
-            background-color: #ff4d6d;
-            border-radius: 0 0 10px 10px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.5s;
+        header {
+            background-color: var(--chinese-red);
+            padding: 60px 20px;
+            color: var(--gold);
+            border-bottom: 8px solid var(--gold);
         }
 
-        .envelope::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 100px solid #ff758c;
-            transform-origin: top;
-            transition: transform 0.5s;
+        .zodiac-icon {
+            font-size: 80px;
+            margin-bottom: 10px;
         }
 
-        /* 打開信封的效果 */
-        .card-container.open .envelope::after {
-            transform: rotateX(180deg);
-            z-index: 0;
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
         }
 
-        .letter {
-            position: absolute;
-            bottom: 0;
-            left: 10px;
-            width: 280px;
-            height: 180px;
-            background: white;
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
             padding: 20px;
-            box-sizing: border-box;
-            transition: transform 0.5s;
-            z-index: -1;
-            border-radius: 5px;
         }
 
-        .card-container.open .letter {
-            transform: translateY(-120px);
-            z-index: 5;
-            height: auto;
-            min-height: 200px;
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border: 2px solid var(--gold);
         }
 
-        h1 { color: #ff4d6d; font-size: 24px; }
-        p { color: #555; line-height: 1.6; }
+        .traits {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .trait-item {
+            background: var(--chinese-red);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: var(--dark-red);
+        }
+
+        .lantern {
+            color: var(--chinese-red);
+            font-size: 2rem;
+        }
     </style>
 </head>
 <body>
 
-    <div class="card-container" onclick="openCard()">
-        <div class="envelope"></div>
-        <div class="letter">
-            <h1>Dear Larry,</h1>
-            <p id="typed-text"></p>
+    <header>
+        <div class="zodiac-icon">🐎</div>
+        <h1>Year of the Horse</h1>
+        <p>Strength, Energy, and Independence</p>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Happy Lunar New Year!</h2>
+            <p>Welcome to the year of spirit and adventure. Those born in the Year of the Horse are known for their infectious energy, warm hearts, and love for freedom.</p>
+            
+            <div class="traits">
+                <div class="trait-item">Energetic</div>
+                <div class="trait-item">Independent</div>
+                <div class="trait-item">Intelligent</div>
+                <div class="trait-item">Confident</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <span class="lantern">🏮</span>
+            <p><em>"May your journey be as swift and successful as a galloping horse."</em></p>
+            <span class="lantern">🏮</span>
         </div>
     </div>
 
-    <script>
-        // 自動生成漂浮的心
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '❤️';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.fontSize = Math.random() * 20 + 10 + 'px';
-            heart.style.animationDuration = Math.random() * 3 + 2 + 's';
-            document.body.appendChild(heart);
-            
-            setTimeout(() => { heart.remove(); }, 5000);
-        }
-        setInterval(createHeart, 300);
+    <footer>
+        <p>&copy; 2026 Lunar Celebrations | Wishing you Wealth & Prosperity</p>
+    </footer>
 
-        // 打字機效果
-        const message = "你的屁股真的超級大! \n 情人節快樂！❤️";
-        let index = 0;
-
-        function typeWriter() {
-            if (index < message.length) {
-                document.getElementById("typed-text").innerHTML += message.charAt(index);
-                index++;
-                setTimeout(typeWriter, 150);
-            }
-        }
-
-        function openCard() {
-            const container = document.querySelector('.card-container');
-            if (!container.classList.contains('open')) {
-                container.classList.add('open');
-                setTimeout(typeWriter, 600);
-            }
-        }
-    </script>
 </body>
 </html>
-
