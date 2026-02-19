@@ -1,263 +1,252 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Year of the Horse 2026 | Interactive Celebration</title>
+    <title>伶伶來拜年 - 馬年大吉</title>
     <style>
         :root {
-            --gold: #FFD700;
-            --crimson: #B22222;
-            --paper: #FFF8E7;
+            --gold: #ffd700;
+            --red: #d32f2f;
+            --dark-red: #8b0000;
         }
 
         body {
             margin: 0;
-            background: #1a0000;
-            color: var(--paper);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 0;
+            background-color: var(--dark-red);
+            font-family: "Microsoft JhengHei", sans-serif;
+            color: var(--gold);
             overflow-x: hidden;
             text-align: center;
         }
 
         /* Fireworks Canvas */
-        #fireworks {
+        #canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none;
-            z-index: 100;
+            z-index: -1;
+            background: radial-gradient(circle, #330000 0%, #000000 100%);
         }
 
-        /* Navigation/Controls */
-        .controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+        header {
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+        }
+
+        /* Character & Animation Area */
+        .stage {
+            position: relative;
+            height: 300px;
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
         }
 
-        button {
-            background: var(--gold);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            color: var(--crimson);
-        }
-
-        /* SVG Animated Horse */
-        .horse-container {
-            padding: 40px;
-            background: radial-gradient(circle, var(--crimson), #400);
-        }
-
-        .horse-svg {
-            width: 200px;
-            fill: var(--gold);
-            animation: gallop 0.6s infinite steps(4);
+        .horse-icon {
+            font-size: 100px;
+            animation: gallop 0.6s infinite alternate;
         }
 
         @keyframes gallop {
-            0% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(-2deg); }
-            100% { transform: translateY(0) rotate(0deg); }
+            from { transform: translateY(0) rotate(-5deg); }
+            to { transform: translateY(-20px) rotate(5deg); }
         }
 
-        /* Countdown */
-        .timer {
-            font-size: 1.5rem;
-            background: rgba(0,0,0,0.5);
+        /* Red Envelope Section */
+        .hongbao-container {
+            cursor: pointer;
             display: inline-block;
-            padding: 15px 30px;
-            border-radius: 10px;
-            border: 1px solid var(--gold);
-            margin: 20px 0;
+            transition: transform 0.3s;
         }
 
-        /* Envelopes */
-        .envelope-box {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            padding: 50px;
-            background: var(--paper);
+        .hongbao-container:hover {
+            transform: scale(1.1);
         }
 
-        .envelope {
-            width: 120px;
-            height: 180px;
-            background: #d32f2f;
+        .hongbao {
+            width: 150px;
+            height: 220px;
+            background-color: var(--red);
+            border: 4px solid var(--gold);
             border-radius: 10px;
             position: relative;
-            cursor: pointer;
-            transition: 0.5s;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            border: 3px solid var(--gold);
         }
 
-        .envelope:hover { transform: scale(1.1) rotate(3deg); }
-
-        .envelope.open {
-            transform: rotateY(180deg);
-            background: var(--gold);
-        }
-
-        .blessing-text {
-            color: var(--crimson);
-            font-weight: bold;
-            display: none;
-            transform: rotateY(180deg);
-            padding: 10px;
-        }
-
-        .envelope.open .blessing-text { display: block; }
-        .envelope.open .envelope-label { display: none; }
-
-        .envelope-label {
-            font-size: 3rem;
+        .hongbao::before {
+            content: "福";
+            font-size: 50px;
             color: var(--gold);
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
         }
 
-        footer { padding: 40px; color: var(--gold); }
+        #message {
+            margin-top: 20px;
+            font-size: 1.8rem;
+            height: 40px;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Lion Dance Simulation (Emoji-based) */
+        .lion-dance {
+            position: absolute;
+            left: -100px;
+            font-size: 50px;
+            animation: slideAcross 10s linear infinite;
+        }
+
+        @keyframes slideAcross {
+            0% { left: -100px; }
+            100% { left: 110%; }
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="fireworks"></canvas>
+    <canvas id="canvas"></canvas>
 
-    <div class="controls">
-        <button onclick="toggleLang()" id="langBtn">中文</button>
-        <button onclick="toggleMusic()">🎵 Music On/Off</button>
-    </div>
+    <div class="lion-dance">🦁🐲🏮</div>
 
-    <header class="horse-container">
-        <svg class="horse-svg" viewBox="0 0 100 100">
-            <path d="M10,60 Q30,20 50,50 T90,40 M20,70 L30,90 M40,75 L50,95 M60,70 L70,90" stroke="gold" stroke-width="4" fill="none" />
-            <circle cx="75" cy="35" r="5" fill="gold" />
-        </svg>
-        <h1 id="title">Happy Year of the Horse!</h1>
-        <div class="timer" id="countdown">Loading Timer...</div>
+    <header>
+        <h1>伶伶來拜年了！</h1>
+        <p class="subtitle">2026 丙午馬年 · 龍馬精神</p>
     </header>
 
-    <div class="envelope-box">
-        <div class="envelope" onclick="openEnvelope(this)">
-            <div class="envelope-label">福</div>
-            <div class="blessing-text" data-en="Abundant Wealth" data-zh="财源广进">Abundant Wealth</div>
-        </div>
-        <div class="envelope" onclick="openEnvelope(this)">
-            <div class="envelope-label">🐎</div>
-            <div class="blessing-text" data-en="Instant Success" data-zh="马到成功">Instant Success</div>
-        </div>
-        <div class="envelope" onclick="openEnvelope(this)">
-            <div class="envelope-label">安</div>
-            <div class="blessing-text" data-en="Perfect Health" data-zh="身体健康">Perfect Health</div>
+    <div class="stage">
+        <div class="horse-icon">🐎</div>
+    </div>
+
+    <div class="hongbao-container" onclick="openHongbao()">
+        <div class="hongbao">
+            <p style="color: var(--gold); margin-top: 10px;">點擊開運</p>
         </div>
     </div>
 
+    <div id="message">點擊紅包收祝福！</div>
+
     <footer>
-        <p id="footer-text">© 2026 - Lunar New Year Celebrations</p>
+        © 2026 伶伶賀新春 | 舞龍舞獅慶豐年
     </footer>
 
-    <audio id="bgMusic" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
-
     <script>
-        // Language Support
-        let currentLang = 'en';
-        const content = {
-            en: { title: "Happy Year of the Horse!", langBtn: "中文", footer: "© 2026 - Lunar New Year Celebrations" },
-            zh: { title: "马年快乐 (2026)", langBtn: "English", footer: "© 2026 - 农历新年庆典" }
-        };
+        // Red Envelope Logic
+        const greetings = [
+            "馬到成功！",
+            "龍馬精神！",
+            "一馬當先！",
+            "萬事如意！",
+            "歲歲平安！",
+            "伶伶祝你財源廣進！"
+        ];
 
-        function toggleLang() {
-            currentLang = currentLang === 'en' ? 'zh' : 'en';
-            document.getElementById('title').innerText = content[currentLang].title;
-            document.getElementById('langBtn').innerText = content[currentLang].langBtn;
-            document.getElementById('footer-text').innerText = content[currentLang].footer;
-            document.querySelectorAll('.blessing-text').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
+        function openHongbao() {
+            const msgDiv = document.getElementById('message');
+            const randomGreet = greetings[Math.floor(Math.random() * greetings.length)];
+            msgDiv.innerText = randomGreet;
+            msgDiv.style.color = "#ffd700";
+            createFirework(window.innerWidth/2, window.innerHeight/2);
         }
 
-        // Music Toggle
-        function toggleMusic() {
-            const music = document.getElementById('bgMusic');
-            return music.paused ? music.play() : music.pause();
-        }
-
-        // Countdown (Targeting Lantern Festival March 3, 2026)
-        function updateTimer() {
-            const target = new Date("March 3, 2026 00:00:00").getTime();
-            const now = new Date().getTime();
-            const diff = target - now;
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            document.getElementById('countdown').innerHTML = 
-                `${days}d ${hours}h ${minutes}m ${seconds}s until Lantern Festival`;
-        }
-        setInterval(updateTimer, 1000);
-
-        // Fireworks Animation
-        const canvas = document.getElementById('fireworks');
+        // Simple Fireworks Canvas Animation
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
+                };
+                this.alpha = 1;
+                this.friction = 0.95;
+            }
+
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+
+            update() {
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.01;
+            }
+        }
 
         function createFirework(x, y) {
-            const particles = [];
-            for (let i = 0; i < 30; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
-                    alpha: 1,
-                    color: `hsl(${Math.random() * 360}, 100%, 50%)`
-                });
+            const colors = ['#ff0000', '#ffd700', '#ff4500', '#ffffff'];
+            for (let i = 0; i < 40; i++) {
+                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
             }
-            animateParticles(particles);
         }
 
-        function animateParticles(particles) {
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach((p, i) => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.alpha -= 0.02;
-                    ctx.globalAlpha = p.alpha;
-                    ctx.fillStyle = p.color;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                    if (p.alpha <= 0) particles.splice(i, 1);
-                });
-                if (particles.length > 0) requestAnimationFrame(draw);
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, i) => {
+                if (particle.alpha > 0) {
+                    particle.update();
+                    particle.draw();
+                } else {
+                    particles.splice(i, 1);
+                }
+            });
+
+            if (Math.random() < 0.03) {
+                createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
             }
-            draw();
         }
 
-        // Red Envelope Interaction
-        function openEnvelope(el) {
-            if(!el.classList.contains('open')) {
-                el.classList.add('open');
-                createFirework(window.innerWidth/2, window.innerHeight/2);
-            }
-        }
+        animate();
     </script>
 </body>
 </html>
