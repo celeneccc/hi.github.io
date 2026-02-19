@@ -3,250 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>伶伶來拜年 - 馬年大吉</title>
+    <title>伶伶來拜年 - 互動馬年慶典</title>
     <style>
         :root {
-            --gold: #ffd700;
-            --red: #d32f2f;
-            --dark-red: #8b0000;
+            --gold: #FFD700;
+            --red: #EE1C25;
+            --dark-red: #8B0000;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-red);
-            font-family: "Microsoft JhengHei", sans-serif;
-            color: var(--gold);
-            overflow-x: hidden;
-            text-align: center;
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            background: #000; color: var(--gold);
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+            overflow: hidden; touch-action: none;
         }
 
-        /* Fireworks Canvas */
-        #canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: radial-gradient(circle, #330000 0%, #000000 100%);
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+
+        /* UI Layer */
+        .ui-layer {
+            position: relative; z-index: 10;
+            pointer-events: none;
+            height: 100vh; display: flex; flex-direction: column; align-items: center;
         }
 
-        header {
-            padding: 50px 20px;
+        header { padding: 30px; text-align: center; pointer-events: auto; }
+        
+        h1 { 
+            font-size: clamp(2rem, 8vw, 4rem); margin: 0; 
+            filter: drop-shadow(0 0 10px var(--red));
+            animation: glow 2s ease-in-out infinite alternate;
         }
 
-        h1 {
-            font-size: 3.5rem;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 10px;
+        /* The Lion (Follows Mouse) */
+        #lion-cursor {
+            position: fixed; width: 80px; height: 80px;
+            font-size: 60px; pointer-events: none; z-index: 100;
+            transition: transform 0.1s ease-out;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .subtitle {
-            font-size: 1.5rem;
-            letter-spacing: 5px;
+        /* Physics Red Envelope */
+        .envelope-box {
+            position: absolute; bottom: 50px; pointer-events: auto;
+            cursor: pointer; transition: transform 0.2s;
+        }
+        
+        .envelope-box:active { transform: scale(0.9); }
+
+        .envelope {
+            width: 120px; height: 180px; background: var(--red);
+            border-radius: 10px; border: 3px solid var(--gold);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Character & Animation Area */
-        .stage {
-            position: relative;
-            height: 300px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 50px;
+        .gold-seal {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--gold); color: var(--red);
+            font-size: 30px; font-weight: bold; line-height: 60px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
         }
 
-        .horse-icon {
-            font-size: 100px;
-            animation: gallop 0.6s infinite alternate;
+        /* Floating Message */
+        #toast {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 3rem; font-weight: bold; color: white;
+            text-shadow: 0 0 20px var(--gold); pointer-events: none;
+            opacity: 0; transition: opacity 0.5s; z-index: 200;
         }
 
-        @keyframes gallop {
-            from { transform: translateY(0) rotate(-5deg); }
-            to { transform: translateY(-20px) rotate(5deg); }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px var(--gold); }
+            to { text-shadow: 0 0 20px var(--red), 0 0 30px var(--gold); }
         }
 
-        /* Red Envelope Section */
-        .hongbao-container {
-            cursor: pointer;
-            display: inline-block;
-            transition: transform 0.3s;
-        }
-
-        .hongbao-container:hover {
-            transform: scale(1.1);
-        }
-
-        .hongbao {
-            width: 150px;
-            height: 220px;
-            background-color: var(--red);
-            border: 4px solid var(--gold);
-            border-radius: 10px;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .hongbao::before {
-            content: "福";
-            font-size: 50px;
-            color: var(--gold);
-            border: 2px solid var(--gold);
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            line-height: 80px;
-        }
-
-        #message {
-            margin-top: 20px;
-            font-size: 1.8rem;
-            height: 40px;
-            font-weight: bold;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 20px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Lion Dance Simulation (Emoji-based) */
-        .lion-dance {
-            position: absolute;
-            left: -100px;
-            font-size: 50px;
-            animation: slideAcross 10s linear infinite;
-        }
-
-        @keyframes slideAcross {
-            0% { left: -100px; }
-            100% { left: 110%; }
-        }
+        .hint { font-size: 1rem; color: #fff; opacity: 0.7; pointer-events: auto; }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas"></canvas>
+    <canvas id="bg-canvas"></canvas>
+    <div id="lion-cursor">🦁</div>
 
-    <div class="lion-dance">🦁🐲🏮</div>
+    <div class="ui-layer">
+        <header>
+            <h1>伶伶來拜年了</h1>
+            <p>2026 丙午馬年 · 龍馬精神</p>
+            <p class="hint">鼠標移動舞獅 🦁 | 點擊發射煙花 🎆 | 開紅包拿好運 🧧</p>
+        </header>
 
-    <header>
-        <h1>伶伶來拜年了！</h1>
-        <p class="subtitle">2026 丙午馬年 · 龍馬精神</p>
-    </header>
+        <div id="toast">馬到成功！</div>
 
-    <div class="stage">
-        <div class="horse-icon">🐎</div>
-    </div>
-
-    <div class="hongbao-container" onclick="openHongbao()">
-        <div class="hongbao">
-            <p style="color: var(--gold); margin-top: 10px;">點擊開運</p>
+        <div class="envelope-box" onclick="openEnvelope(event)">
+            <div class="envelope">
+                <div class="gold-seal">福</div>
+                <p style="margin-top: 15px; font-weight: bold;">點開驚喜</p>
+            </div>
         </div>
     </div>
 
-    <div id="message">點擊紅包收祝福！</div>
-
-    <footer>
-        © 2026 伶伶賀新春 | 舞龍舞獅慶豐年
-    </footer>
-
     <script>
-        // Red Envelope Logic
-        const greetings = [
-            "馬到成功！",
-            "龍馬精神！",
-            "一馬當先！",
-            "萬事如意！",
-            "歲歲平安！",
-            "伶伶祝你財源廣進！"
-        ];
-
-        function openHongbao() {
-            const msgDiv = document.getElementById('message');
-            const randomGreet = greetings[Math.floor(Math.random() * greetings.length)];
-            msgDiv.innerText = randomGreet;
-            msgDiv.style.color = "#ffd700";
-            createFirework(window.innerWidth/2, window.innerHeight/2);
-        }
-
-        // Simple Fireworks Canvas Animation
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
+        const lion = document.getElementById('lion-cursor');
+        const toast = document.getElementById('toast');
+        
+        let fireworks = [];
         let particles = [];
+        let coins = [];
 
+        const greetings = ["馬到成功", "一馬當先", "龍馬精神", "伶伶報喜", "萬事如意", "財源廣進"];
+
+        // Resize
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
-
         window.addEventListener('resize', resize);
         resize();
 
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.velocity = {
-                    x: (Math.random() - 0.5) * 8,
-                    y: (Math.random() - 0.5) * 8
-                };
-                this.alpha = 1;
-                this.friction = 0.95;
-            }
+        // Interaction: Lion Follows Mouse
+        window.addEventListener('mousemove', (e) => {
+            lion.style.left = (e.clientX - 40) + 'px';
+            lion.style.top = (e.clientY - 40) + 'px';
+            // Slight rotation based on movement
+            const tilt = (e.movementX) * 2;
+            lion.style.transform = `rotate(${tilt}deg)`;
+        });
 
-            draw() {
-                ctx.globalAlpha = this.alpha;
+        // Click to Launch Fireworks
+        window.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.envelope-box')) return;
+            createFirework(e.clientX, e.clientY);
+        });
+
+        function createFirework(x, y) {
+            const colors = ['#FFD700', '#FF0000', '#FF4500', '#00FF00', '#00FFFF'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    alpha: 1,
+                    color: color
+                });
+            }
+        }
+
+        function openEnvelope(e) {
+            // Show Greeting
+            toast.innerText = greetings[Math.floor(Math.random() * greetings.length)];
+            toast.style.opacity = 1;
+            setTimeout(() => toast.style.opacity = 0, 2000);
+
+            // Explosion of Coins
+            for (let i = 0; i < 15; i++) {
+                coins.push({
+                    x: e.clientX, y: e.clientY,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: -Math.random() * 20,
+                    gravity: 0.6,
+                    rotation: 0
+                });
+            }
+            createFirework(e.clientX, e.clientY);
+        }
+
+        function update() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Particles Update
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // gravity
+                p.alpha -= 0.015;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
+                ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
                 ctx.fill();
             }
 
-            update() {
-                this.velocity.x *= this.friction;
-                this.velocity.y *= this.friction;
-                this.x += this.velocity.x;
-                this.y += this.velocity.y;
-                this.alpha -= 0.01;
-            }
-        }
-
-        function createFirework(x, y) {
-            const colors = ['#ff0000', '#ffd700', '#ff4500', '#ffffff'];
-            for (let i = 0; i < 40; i++) {
-                particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
-            }
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            particles.forEach((particle, i) => {
-                if (particle.alpha > 0) {
-                    particle.update();
-                    particle.draw();
-                } else {
-                    particles.splice(i, 1);
+            // Coins Update
+            for (let i = coins.length - 1; i >= 0; i--) {
+                const c = coins[i];
+                c.x += c.vx;
+                c.y += c.vy;
+                c.vy += c.gravity;
+                c.rotation += 0.2;
+                
+                if (c.y > canvas.height + 50) {
+                    coins.splice(i, 1);
+                    continue;
                 }
-            });
+                
+                ctx.globalAlpha = 1;
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation);
+                ctx.fillStyle = '#FFD700';
+                ctx.beginPath();
+                ctx.arc(0, 0, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#B8860B';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                // Square hole in coin
+                ctx.fillStyle = '#000';
+                ctx.fillRect(-3, -3, 6, 6);
+                ctx.restore();
+            }
 
-            if (Math.random() < 0.03) {
+            requestAnimationFrame(update);
+        }
+
+        // Auto fireworks occasionally
+        setInterval(() => {
+            if (Math.random() > 0.7) {
                 createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
             }
-        }
+        }, 1500);
 
-        animate();
+        update();
     </script>
 </body>
 </html>
