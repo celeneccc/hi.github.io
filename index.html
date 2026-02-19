@@ -3,237 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>伶伶來拜年 - 互動馬年慶典</title>
+    <title>伶伶的黃金紅包 - 馬年大吉</title>
     <style>
         :root {
-            --gold: #FFD700;
-            --red: #EE1C25;
-            --dark-red: #8B0000;
+            --gold-light: #FFD700;
+            --gold-dark: #B8860B;
+            --red-main: #EE1C25;
+            --red-dark: #8B0000;
+            --text-color: #FFFACD; /* Light gold for text */
         }
 
         body, html {
             margin: 0; padding: 0; height: 100%; width: 100%;
-            background: #000; color: var(--gold);
+            background: radial-gradient(circle at center, var(--red-dark) 0%, #330000 100%);
             font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
-            overflow: hidden; touch-action: none;
+            overflow: hidden; /* Prevent scrollbars from coin animations */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--text-color);
         }
 
-        #bg-canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        #coin-canvas {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1; /* Below UI */
+            pointer-events: none; /* Allow clicks to pass through */
+        }
 
-        /* UI Layer */
-        .ui-layer {
+        .ui-container {
             position: relative; z-index: 10;
-            pointer-events: none;
-            height: 100vh; display: flex; flex-direction: column; align-items: center;
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center;
+            padding: 20px;
         }
 
-        header { padding: 30px; text-align: center; pointer-events: auto; }
-        
-        h1 { 
-            font-size: clamp(2rem, 8vw, 4rem); margin: 0; 
-            filter: drop-shadow(0 0 10px var(--red));
-            animation: glow 2s ease-in-out infinite alternate;
+        header h1 {
+            font-size: clamp(2.5rem, 10vw, 5rem);
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px var(--gold-light), 0 0 25px var(--red-main);
+            animation: textGlow 2s ease-in-out infinite alternate;
         }
 
-        /* The Lion (Follows Mouse) */
-        #lion-cursor {
-            position: fixed; width: 80px; height: 80px;
-            font-size: 60px; pointer-events: none; z-index: 100;
-            transition: transform 0.1s ease-out;
-            display: flex; align-items: center; justify-content: center;
+        header p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            margin-top: 0;
+            opacity: 0.9;
         }
 
-        /* Physics Red Envelope */
-        .envelope-box {
-            position: absolute; bottom: 50px; pointer-events: auto;
-            cursor: pointer; transition: transform 0.2s;
+        .envelope-container {
+            position: relative;
+            width: 200px;
+            height: 300px;
+            cursor: pointer;
+            perspective: 1000px; /* For 3D flip effect */
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+            margin-top: 30px;
         }
-        
-        .envelope-box:active { transform: scale(0.9); }
 
         .envelope {
-            width: 120px; height: 180px; background: var(--red);
-            border-radius: 10px; border: 3px solid var(--gold);
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, var(--red-main) 0%, var(--red-dark) 100%);
+            border-radius: 15px;
+            border: 5px solid var(--gold-light);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            position: absolute;
+            backface-visibility: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            transform: rotateY(0deg);
         }
 
-        .gold-seal {
-            width: 60px; height: 60px; border-radius: 50%;
-            background: var(--gold); color: var(--red);
-            font-size: 30px; font-weight: bold; line-height: 60px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        .envelope-back {
+            background: linear-gradient(180deg, var(--red-dark) 0%, var(--red-main) 100%);
+            border-radius: 15px;
+            border: 5px solid var(--gold-dark);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            position: absolute;
+            backface-visibility: hidden;
+            transform: rotateY(180deg);
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-sizing: border-box;
+            font-size: 1.2rem;
         }
 
-        /* Floating Message */
-        #toast {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 3rem; font-weight: bold; color: white;
-            text-shadow: 0 0 20px var(--gold); pointer-events: none;
-            opacity: 0; transition: opacity 0.5s; z-index: 200;
+        .envelope-container.open .envelope {
+            transform: rotateY(-180deg);
+        }
+        .envelope-container.open .envelope-back {
+            transform: rotateY(0deg);
         }
 
-        @keyframes glow {
-            from { text-shadow: 0 0 5px var(--gold); }
-            to { text-shadow: 0 0 20px var(--red), 0 0 30px var(--gold); }
+        .envelope .seal {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: var(--gold-light); color: var(--red-main);
+            font-size: 50px; font-weight: bold; line-height: 100px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--gold-light);
+            margin-bottom: 20px;
+        }
+        
+        .envelope .horse-icon {
+            font-size: 60px;
+            filter: drop-shadow(0 0 5px var(--gold-light));
         }
 
-        .hint { font-size: 1rem; color: #fff; opacity: 0.7; pointer-events: auto; }
+        /* Ling Ling Message */
+        #lingling-message {
+            position: absolute;
+            bottom: -80px; /* Position below the envelope */
+            width: 100%;
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            color: var(--gold-light);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #lingling-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Click prompt */
+        .click-prompt {
+            margin-top: 50px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes textGlow {
+            from { text-shadow: 0 0 10px var(--gold-light), 0 0 20px var(--red-main); }
+            to { text-shadow: 0 0 20px var(--gold-light), 0 0 30px var(--red-main); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
-    <div id="lion-cursor">🦁</div>
+    <canvas id="coin-canvas"></canvas>
 
-    <div class="ui-layer">
+    <div class="ui-container">
         <header>
-            <h1>伶伶來拜年了</h1>
-            <p>2026 丙午馬年 · 龍馬精神</p>
-            <p class="hint">鼠標移動舞獅 🦁 | 點擊發射煙花 🎆 | 開紅包拿好運 🧧</p>
+            <h1>伶伶來拜年了！</h1>
+            <p>2026 丙午馬年 · 黃金滿屋</p>
         </header>
 
-        <div id="toast">馬到成功！</div>
-
-        <div class="envelope-box" onclick="openEnvelope(event)">
+        <div class="envelope-container" onclick="openEnvelope()">
             <div class="envelope">
-                <div class="gold-seal">福</div>
-                <p style="margin-top: 15px; font-weight: bold;">點開驚喜</p>
+                <div class="seal">福</div>
+                <div class="horse-icon">🐎</div>
+            </div>
+            <div class="envelope-back">
+                <p>恭喜發財！</p>
+                <p id="greeting-display" style="font-size: 1.5rem; margin-top: 10px; color: var(--gold-light);"></p>
+                <p style="margin-top: 30px; font-style: italic;">伶伶祝您新春快樂！</p>
             </div>
         </div>
+        <p class="click-prompt">點擊紅包拿好運！</p>
+        <div id="lingling-message"></div>
     </div>
 
     <script>
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        const lion = document.getElementById('lion-cursor');
-        const toast = document.getElementById('toast');
-        
-        let fireworks = [];
-        let particles = [];
-        let coins = [];
-
-        const greetings = ["馬到成功", "一馬當先", "龍馬精神", "伶伶報喜", "萬事如意", "財源廣進"];
-
-        // Resize
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Interaction: Lion Follows Mouse
-        window.addEventListener('mousemove', (e) => {
-            lion.style.left = (e.clientX - 40) + 'px';
-            lion.style.top = (e.clientY - 40) + 'px';
-            // Slight rotation based on movement
-            const tilt = (e.movementX) * 2;
-            lion.style.transform = `rotate(${tilt}deg)`;
-        });
-
-        // Click to Launch Fireworks
-        window.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.envelope-box')) return;
-            createFirework(e.clientX, e.clientY);
-        });
-
-        function createFirework(x, y) {
-            const colors = ['#FFD700', '#FF0000', '#FF4500', '#00FF00', '#00FFFF'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            for (let i = 0; i < 50; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 12,
-                    vy: (Math.random() - 0.5) * 12,
-                    alpha: 1,
-                    color: color
-                });
-            }
-        }
-
-        function openEnvelope(e) {
-            // Show Greeting
-            toast.innerText = greetings[Math.floor(Math.random() * greetings.length)];
-            toast.style.opacity = 1;
-            setTimeout(() => toast.style.opacity = 0, 2000);
-
-            // Explosion of Coins
-            for (let i = 0; i < 15; i++) {
-                coins.push({
-                    x: e.clientX, y: e.clientY,
-                    vx: (Math.random() - 0.5) * 20,
-                    vy: -Math.random() * 20,
-                    gravity: 0.6,
-                    rotation: 0
-                });
-            }
-            createFirework(e.clientX, e.clientY);
-        }
-
-        function update() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Particles Update
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.05; // gravity
-                p.alpha -= 0.015;
-                if (p.alpha <= 0) {
-                    particles.splice(i, 1);
-                    continue;
-                }
-                ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Coins Update
-            for (let i = coins.length - 1; i >= 0; i--) {
-                const c = coins[i];
-                c.x += c.vx;
-                c.y += c.vy;
-                c.vy += c.gravity;
-                c.rotation += 0.2;
-                
-                if (c.y > canvas.height + 50) {
-                    coins.splice(i, 1);
-                    continue;
-                }
-                
-                ctx.globalAlpha = 1;
-                ctx.save();
-                ctx.translate(c.x, c.y);
-                ctx.rotate(c.rotation);
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(0, 0, 10, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#B8860B';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                // Square hole in coin
-                ctx.fillStyle = '#000';
-                ctx.fillRect(-3, -3, 6, 6);
-                ctx.restore();
-            }
-
-            requestAnimationFrame(update);
-        }
-
-        // Auto fireworks occasionally
-        setInterval(() => {
-            if (Math.random() > 0.7) {
-                createFirework(Math.random() * canvas.width, Math.random() * canvas.height * 0.5);
-            }
-        }, 1500);
-
-        update();
-    </script>
-</body>
-</html>
+        const coinCanvas = document.getElementById('coin-canvas');
+        const coinCtx = coinCanvas.getContext('2d');
+        const envelope
