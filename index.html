@@ -1,197 +1,149 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Year of the Horse 2026</title>
-    <style>
-        :root {
-            --gold: #FFD700;
-            --deep-red: #B22222;
-            --bright-red: #FF3131;
-            --parchment: #FFFBF0;
-        }
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-        body {
-            margin: 0;
-            background-color: var(--deep-red);
-            font-family: 'Georgia', serif;
-            color: var(--parchment);
-            overflow-x: hidden;
-            text-align: center;
-        }
+export default function LunarNewYearHorse() {
+  const [blessings, setBlessings] = useState([]);
+  const [showEnvelope, setShowEnvelope] = useState(false);
+  const [opened, setOpened] = useState(false);
+  const [countdown, setCountdown] = useState("");
+  const [musicOn, setMusicOn] = useState(false);
+  const audioRef = useRef(null);
 
-        /* Animated Lanterns */
-        .lantern-container {
-            position: fixed;
-            top: -20px;
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            pointer-events: none;
-            z-index: 10;
-        }
+  const messages = [
+    "Wishing you unstoppable momentum this Year of the Horse!",
+    "May success gallop into your life!",
+    "Strength, speed, and prosperity in 2026!",
+    "Bold beginnings and victorious endings!"
+  ];
 
-        .lantern {
-            font-size: 40px;
-            animation: sway 3s ease-in-out infinite alternate;
-        }
+  // Countdown to next Lunar New Year (approx Feb 17, 2026)
+  useEffect(() => {
+    const target = new Date("2026-02-17T00:00:00");
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = target - now;
+      if (diff <= 0) {
+        setCountdown("Happy Lunar New Year! 🎉");
+        clearInterval(interval);
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      setCountdown(`${days}d ${hours}h ${minutes}m`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
-        @keyframes sway {
-            from { transform: rotate(-10deg); }
-            to { transform: rotate(10deg); }
-        }
+  const generateBlessing = () => {
+    const random = messages[Math.floor(Math.random() * messages.length)];
+    setBlessings([...blessings, random]);
+  };
 
-        header {
-            padding: 80px 20px;
-            background: radial-gradient(circle, var(--bright-red) 0%, var(--deep-red) 100%);
-        }
+  const openEnvelope = () => {
+    setOpened(true);
+    generateBlessing();
+  };
 
-        .horse-main {
-            font-size: 100px;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: inline-block;
-        }
+  const toggleMusic = () => {
+    if (!audioRef.current) return;
+    if (musicOn) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setMusicOn(!musicOn);
+  };
 
-        .horse-main:hover {
-            transform: scale(1.2) rotate(-5deg);
-        }
+  return (
+    <div className="min-h-screen bg-red-600 text-yellow-100 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <audio
+        ref={audioRef}
+        loop
+        src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0c6ff1e3c.mp3?filename=chinese-new-year-112194.mp3"
+      />
 
-        /* Interactive Envelopes */
-        .envelope-section {
-            padding: 40px 20px;
-            background: var(--parchment);
-            color: var(--deep-red);
-        }
+      <motion.h1
+        initial={{ opacity: 0, y: -40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-4xl md:text-6xl font-bold text-center mb-4"
+      >
+        🧧 Lunar New Year – Year of the Horse 🐎
+      </motion.h1>
 
-        .envelope-grid {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
+      <p className="mb-4 text-lg">Countdown: {countdown}</p>
 
-        .envelope {
-            width: 80px;
-            height: 120px;
-            background: var(--bright-red);
-            border: 2px solid var(--gold);
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 30px;
-            color: var(--gold);
-            transition: 0.3s;
-            position: relative;
-        }
+      <Button
+        onClick={toggleMusic}
+        className="mb-6 bg-yellow-400 text-red-700 rounded-2xl"
+      >
+        {musicOn ? "🔇 Stop Music" : "🎵 Play Festive Music"}
+      </Button>
 
-        .envelope:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
+      {/* Envelope Section */}
+      <Card className="bg-red-700 shadow-2xl rounded-2xl w-full max-w-md">
+        <CardContent className="p-6 flex flex-col items-center gap-4">
+          {!opened ? (
+            <motion.div
+              onClick={openEnvelope}
+              whileHover={{ scale: 1.1 }}
+              className="cursor-pointer text-8xl"
+            >
+              🧧
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="text-6xl"
+            >
+              🐎✨
+            </motion.div>
+          )}
 
-        .envelope.open {
-            background: #eee;
-            transform: rotateY(180deg);
-            cursor: default;
-        }
+          <p className="text-center">
+            Click the red envelope to reveal your New Year blessing!
+          </p>
+        </CardContent>
+      </Card>
 
-        /* Fortune Modal */
-        #fortune-display {
-            margin-top: 30px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            min-height: 40px;
-            color: var(--deep-red);
-        }
+      {/* Blessings Display */}
+      <div className="mt-8 w-full max-w-md space-y-4">
+        {blessings.map((msg, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="bg-yellow-400 text-red-800 rounded-2xl shadow-lg">
+              <CardContent className="p-4 text-center font-semibold">
+                {msg}
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
 
-        button {
-            background: var(--gold);
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            color: var(--deep-red);
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
+      {/* Fireworks */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{ repeat: Infinity, duration: 3 }}
+      >
+        <div className="text-center text-6xl mt-20">🎆 🎇 🎆</div>
+      </motion.div>
 
-        button:hover {
-            background: white;
-            transform: scale(1.05);
-        }
-
-    </style>
-</head>
-<body>
-
-    <div class="lantern-container">
-        <div class="lantern">🏮</div>
-        <div class="lantern">🏮</div>
-        <div class="lantern">🏮</div>
-        <div class="lantern">🏮</div>
+      <motion.div
+        className="absolute bottom-4 text-sm opacity-80"
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ repeat: Infinity, duration: 2 }}
+      >
+        Gong Xi Fa Cai! 恭喜发财
+      </motion.div>
     </div>
-
-    <header>
-        <div class="horse-main" id="horse" onclick="gallop()">🐎</div>
-        <h1 id="greeting">Gōng Xǐ Fā Cái!</h1>
-        <p>Click the horse to hear his spirit!</p>
-        <button onclick="changeGreeting()">Change Greeting</button>
-    </header>
-
-    <div class="envelope-section">
-        <h2>Open Your Lucky Red Envelope</h2>
-        <p>Pick one to see your 2026 fortune:</p>
-        <div class="envelope-grid">
-            <div class="envelope" onclick="revealFortune(this, 'Great Wealth!')">福</div>
-            <div class="envelope" onclick="revealFortune(this, 'Excellent Health!')">寿</div>
-            <div class="envelope" onclick="revealFortune(this, 'Career Success!')">禄</div>
-        </div>
-        <div id="fortune-display"></div>
-    </div>
-
-    <script>
-        const greetings = [
-            "Gōng Xǐ Fā Cái!",
-            "Happy Year of the Horse!",
-            "May your spirit be swift!",
-            "Wàn Shì Rú Yì!"
-        ];
-
-        function changeGreeting() {
-            const h1 = document.getElementById('greeting');
-            const current = h1.innerText;
-            let next = greetings[Math.floor(Math.random() * greetings.length)];
-            while(next === current) next = greetings[Math.floor(Math.random() * greetings.length)];
-            h1.innerText = next;
-        }
-
-        function gallop() {
-            const horse = document.getElementById('horse');
-            horse.style.transition = "1s linear";
-            horse.style.transform = "translateX(200vw)";
-            
-            setTimeout(() => {
-                horse.style.transition = "0s";
-                horse.style.transform = "translateX(-200vw)";
-                setTimeout(() => {
-                    horse.style.transition = "1s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-                    horse.style.transform = "translateX(0)";
-                }, 50);
-            }, 1000);
-        }
-
-        function revealFortune(el, fortune) {
-            if(el.classList.contains('open')) return;
-            el.classList.add('open');
-            el.innerText = "✨";
-            document.getElementById('fortune-display').innerText = "Your Fortune: " + fortune;
-        }
-    </script>
-</body>
-</html>
+  );
+}
